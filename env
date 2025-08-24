@@ -1,0 +1,15 @@
+# Environment variables for the crypto trading bot
+
+# REQUIRED
+51512d14-7cee-4d44-8ec5-cc5ed544430b
+
+# Alerts (Discord webhook URL)
+DISCORD_WEBHOOK=https://discord.com/api/webhooks/1405265099286904997/DetzBasNL1F8NtBvcfwQlOXi0DrvzWdtQhbUd3BnNuDzWyTxw7volvg9600g0ie_pJLX
+
+# Optional tuning
+# Comma‑separated list of symbols you want to monitor in addition to the CoinMarketCap top 100.
+UNIVERSE=ARB,ONDO,SEI,SUI
+# How often to perform scans, in minutes.
+SCAN_INTERVAL_MIN=60
+# How often to send summary messages, in hours.
+SUMMARY_HOURS=4

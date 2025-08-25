@@ -1,3 +1,49 @@
+# --- On-chain TVL summary via DeFiLlama ---
+import os, requests
+
+# Names for /v2/charts/chain/{name}  (TVL)
+TVL_CHAIN_FOR = {
+    "ETH": "Ethereum",
+    "ARB": "Arbitrum",
+    "OP":  "Optimism",
+    "SOL": "Solana",
+    "AVAX":"Avalanche",
+    "BNB": "Binance",      # TVL uses "Binance"
+    "SEI": "Sei",
+    "SUI": "Sui",
+    "APT": "Aptos",
+    "MATIC":"Polygon",
+    "POL": "Polygon",
+    "OKB": "OKExChain",    # TVL uses "OKExChain"
+}
+
+ONCHAIN_TVL_7D_MIN = float(os.getenv("ONCHAIN_TVL_7D_PCT", 1.0))  # show if |Δ|>=1%
+
+def _tvl_7d_pct(chain_name: str):
+    try:
+        data = requests.get(
+            f"https://api.llama.fi/v2/charts/chain/{chain_name}", timeout=15
+        ).json()
+        if isinstance(data, list) and len(data) >= 8:
+            def _v(d):
+                return d.get("totalLiquidityUSD") or d.get("tvl") or d.get("totalLiquidity")
+            last, prev = _v(data[-1]), _v(data[-8])
+            if last and prev and prev > 0:
+                return 100.0 * (last - prev) / prev
+    except Exception:
+        pass
+    return None
+
+def onchain_summary_for_ticker(ticker: str) -> str | None:
+    t = ticker.upper()
+    chain = TVL_CHAIN_FOR.get(t)
+    if not chain:
+        return None
+    tvl_7d = _tvl_7d_pct(chain)
+    parts = []
+    if tvl_7d is not None and abs(tvl_7d) >= ONCHAIN_TVL_7D_MIN:
+        parts.append(f"TVL {tvl_7d:+.1f}% 7d")
+    return " ; ".join(parts) if parts else None
 """
 Helpers for interacting with DefiLlama APIs.
 
